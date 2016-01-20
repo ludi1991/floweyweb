@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+  p game
+  div
+  form(action='/game/alter',method='post')
+    div(data-role='fieldcontain')
+      fieldset(data-role='controlgroup')
+        label(for='name') name
+           input(id='name',type='text',value='',placeholder='',name='name')
+    div#gameiddiv(data-role='fieldcontain')
+      fieldset(data-role='controlgroup')
+        label(for='gameid') gameid
+           input(id='gameid',type='gameid',value='',placeholder='',name='gameid')
+    div(data-role='fieldcontain')   
+      input(type='submit',value='Create!',data-transition='fade', data-theme='c')
