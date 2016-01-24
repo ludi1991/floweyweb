@@ -17,8 +17,8 @@ var mysql = require('mysql');
 
 function createConnection() {
     return mysql.createConnection({
-        host     : 'localhost',
-        user     : 'root',
+        host     : '10.10.32.201',
+        user     : 'ludi',
         database : 'stat',
     });
 }

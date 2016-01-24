@@ -1,17 +1,201 @@
-extends layout
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title= '用户管理'
+    link(href="/stylesheets/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/jtable/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/validationEngine/css/validationEngine.jquery.css" rel="stylesheet" type="text/css")
 
-block content
-  h1= title
-  p users
-  div
-  form(action='/users/create',method='post')
-    div(data-role='fieldcontain')
-      fieldset(data-role='controlgroup')
-        label(for='username') username
-           input(id='name',type='text',value='',placeholder='',name='username')
-    div#gameiddiv(data-role='fieldcontain')
-      fieldset(data-role='controlgroup')
-        label(for='password') password
-           input(id='password',type='password',value='',placeholder='',name='password')
-    div(data-role='fieldcontain')   
-      input(type='submit',value='create',data-transition='fade', data-theme='c')
+    script(src="/javascripts/jquery-1.6.4.min.js" type="text/javascript")
+    script(src="/javascripts/jquery-ui-1.8.16.custom.min.js" type="text/javascript")
+    script(src="/javascripts/jtable/jquery.jtable.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/jquery.validationEngine.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
+  body(style='text-align:center;')
+    div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
+      a(href='/users',style='text-decoration:none;color:rgb(75,133,191);')
+        用户管理
+      &nbsp;|&nbsp; 
+      a(href='/daily',style='text-decoration:none;color:rgb(75,133,191);')
+        统计管理
+      &nbsp;|&nbsp; 
+      a(href='/game',style='text-decoration:none;color:rgb(75,133,191);')
+        游戏管理
+      &nbsp;|&nbsp;
+      a(href='/project',style='text-decoration:none;color:rgb(75,133,191);')
+        项目管理
+      &nbsp;|&nbsp;
+      a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);')
+        供应商管理
+    div(id='myDiv' style="width: 1300px;margin:auto;")
+    script(type="text/javascript").
+      $(document).ready(function () {
+        //- alert("test");
+        //Prepare jTable
+        $('#myDiv').jtable({
+          title: '用户',
+          //- paging: true, //Enable paging
+          //- pageSize: 5, //Set page size (default: 10)
+          //- sorting: true, //Enable sorting
+          //- defaultSorting: 'username ASC', //Set default sorting
+          actions: {
+            listAction: 'users/list',
+            createAction: 'users/create',
+            updateAction: 'users/update',
+            deleteAction: 'users/delete'
+          },
+          fields: {
+            id: {
+              key: true,
+              create: false,
+              edit: false,
+              list: false
+            },
+            username: {
+              //- key: true,
+              title: '用户名',
+              width: '20%'
+            },
+            password: {
+              title: '密码',
+              width: '20%',
+              type: 'password'
+            },
+            pri_1: {
+              title: 'pri_1',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_2: {
+              title: 'pri_2',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_3: {
+              title: 'pri_3',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_4: {
+              title: 'pri_4',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_5: {
+              title: 'pri_5',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_6: {
+              title: 'pri_6',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_7: {
+              title: 'pri_7',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_8: {
+              title: 'pri_8',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_9: {
+              title: 'pri_9',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_10: {
+              title: 'pri_10',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_11: {
+              title: 'pri_11',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+            pri_12: {
+              title: 'pri_12',
+              width: '5%',
+              type: 'checkbox',
+              values: { '0': '', '1': '√' }
+            },
+          },
+          //Initialize validation logic when a form is created
+          formCreated: function (event, data) {
+              data.form.find('input[name="username"]').addClass('validate[required]');
+              //- data.form.find('input[name="EmailAddress"]').addClass('validate[required,custom[email]]');
+              data.form.find('input[name="password"]').addClass('validate[required]');
+              //- data.form.find('input[name="BirthDate"]').addClass('validate[required,custom[date]]');
+              //- data.form.find('input[name="pri_1"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_2"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_3"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_4"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_5"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_6"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_7"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_8"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_9"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_10"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_11"]').addClass('validate[required]');
+              //- data.form.find('input[name="pri_12"]').addClass('validate[required]');
+              data.form.validationEngine();
+          },
+          //Validate form when it is being submitted
+          formSubmitting: function (event, data) {
+              return data.form.validationEngine('validate');
+          },
+          //Dispose validation logic when form is closed
+          formClosed: function (event, data) {
+              //- data.form.validationEngine('hide');
+              //- data.form.validationEngine('detach');
+          }
+        });
+
+        //Load person list from server
+        $('#myDiv').jtable('load');
+
+      });
+      //- function loadXMLDoc()
+      //- {
+      //-   alert("test")
+      //-   var xmlhttp;
+      //-   if(window.XMLHttpRequest)
+      //-   {
+      //-     xmlhttp= new XMLHttpRequest();
+      //-   }  
+      //-   else
+      //-   {
+      //-     xmlhttp= new ActiveXObject("Microsoft.XMLHTTP");
+      //-   }
+      //-   xmlhttp.onreadystatechange=function()
+      //-   {
+      //-     if (xmlhttp.readyState==4 && xmlhttp.status==200)
+      //-     {
+      //-       var users = eval("(" + xmlhttp.responseText + ")");
+      //-       for(var i=0;i<users.length;i++)
+      //-           document.write(users[i].username+":"+users[i].password);
+      //-       //- var test = [{"username":"admin","password":"123"},{"username":"admin1","password":"333"}]
+      //-       //- for(var i=0;i<test.length;i++)
+      //-       //-     document.write(test[i].username+":"+test[i].password+" ")
+      //-       //- document.write(xmlhttp.responseText)
+      //-     }
+      //-   }
+      //-   xmlhttp.open("GET","users/list",true);
+      //-   xmlhttp.send();
+      //- }
+    

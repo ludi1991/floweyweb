@@ -1,17 +1,98 @@
-extends layout
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title= '项目管理'
+    link(href="/stylesheets/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/jtable/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/validationEngine/css/validationEngine.jquery.css" rel="stylesheet" type="text/css")
 
-block content
-  h1= title
-  p game
-  div
-  form(action='/game/alter',method='post')
-    div(data-role='fieldcontain')
-      fieldset(data-role='controlgroup')
-        label(for='name') name
-           input(id='name',type='text',value='',placeholder='',name='name')
-    div#gameiddiv(data-role='fieldcontain')
-      fieldset(data-role='controlgroup')
-        label(for='gameid') gameid
-           input(id='gameid',type='gameid',value='',placeholder='',name='gameid')
-    div(data-role='fieldcontain')   
-      input(type='submit',value='Create!',data-transition='fade', data-theme='c')
+    script(src="/javascripts/jquery-1.6.4.min.js" type="text/javascript")
+    script(src="/javascripts/jquery-ui-1.8.16.custom.min.js" type="text/javascript")
+    script(src="/javascripts/jtable/jquery.jtable.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/jquery.validationEngine.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
+  body(style='text-align:center;')
+    div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
+      a(href='/users',style='text-decoration:none;color:rgb(75,133,191);')
+        用户管理
+      &nbsp;|&nbsp; 
+      a(href='/daily',style='text-decoration:none;color:rgb(75,133,191);')
+        统计管理
+      &nbsp;|&nbsp; 
+      a(href='/game',style='text-decoration:none;color:rgb(75,133,191);')
+        游戏管理
+      &nbsp;|&nbsp;
+      a(href='/project',style='text-decoration:none;color:rgb(75,133,191);')
+        项目管理
+      &nbsp;|&nbsp;
+      a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);')
+        供应商管理
+    div(id='myDiv' style="width: 1300px;margin:auto;")
+    script(type="text/javascript").
+      $(document).ready(function () {
+        //Prepare jTable
+        $('#myDiv').jtable({
+          title: '项目',
+          //- paging: true, //Enable paging
+          //- pageSize: 5, //Set page size (default: 10)
+          //- sorting: true, //Enable sorting
+          //- defaultSorting: 'username ASC', //Set default sorting
+          actions: {
+            listAction: 'project/list',
+            createAction: 'project/create',
+            updateAction: 'project/update',
+            deleteAction: 'project/delete'
+          },
+          fields: {
+            projectid: {
+              key: true,
+              create: false,
+              edit: false,
+              list: false
+            },
+            vendorid: {
+              title: '供应商编号',
+              width: '25%',
+              options: '/project/get_vendorid_options'
+            },
+            gameid: {
+              //- key: true,
+              title: '游戏编号',
+              width: '25%',
+              options: '/project/get_game_options'
+            },
+            dp_father: {
+              title: '上家收益',
+              width: '25%'
+            },
+            dp_child: {
+              title: '下家收益',
+              width: '25%'
+            },
+          },
+          //Initialize validation logic when a form is created
+          formCreated: function (event, data) {
+              data.form.find('input[name="gameid"]').addClass('validate[required]');
+              data.form.find('input[name="vendorid"]').addClass('validate[required]');
+              data.form.find('input[name="dp_father"]').addClass('validate[required,custom[number],min[0],max[1]]');
+              data.form.find('input[name="dp_child"]').addClass('validate[required,custom[number],min[0],max[1]]');
+              data.form.validationEngine();
+          },
+          //Validate form when it is being submitted
+          formSubmitting: function (event, data) {
+              return data.form.validationEngine('validate');
+          },
+          //Dispose validation logic when form is closed
+          formClosed: function (event, data) {
+              //- data.form.validationEngine('hide');
+              //- data.form.validationEngine('detach');
+          }
+        });
+
+        //Load person list from server
+        $('#myDiv').jtable('load');
+
+      });
+    
+    

@@ -14,7 +14,10 @@ router.post('/',function(req,res,next){
   db.query("SELECT * from user where username = '" + req.body.username + "'",function(error,rows,fields){
       if (error) throw error;
       if (rows[0] == undefined){
-        res.send("no user");
+        var result = new Object();
+        result.Result = "ERROR";
+        result.Message = "用户名不存在！";
+        res.send(JSON.stringify(result));
       }
       else if ( req.body.password == rows[0].password ){
         req.session.username = rows[0].username;
@@ -32,10 +35,14 @@ router.post('/',function(req,res,next){
         req.session.pri_12 = rows[0].pri_12;
         req.session.userid = rows[0].id;
         req.session.allowed = 1;
-        res.send("yep");
+        // res.send("yep");
+        res.redirect("/users");
       }
       else {
-        res.send("no password");
+        var result = new Object();
+        result.Result = "ERROR";
+        result.Message = "密码错误！";
+        res.send(JSON.stringify(result));
       };
 
   });

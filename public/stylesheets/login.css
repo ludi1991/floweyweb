@@ -1,0 +1,76 @@
+form {
+  margin: 12px;
+}
+a {
+  color: #00B7FF;
+}
+
+/*div.form-container {
+  display: inline-block;
+  border: 6px solid steelblue;
+  width: 280px;
+  border-radius: 10px;
+  margin: 12px;
+}
+
+p.form-header {
+  margin: 0px;
+  font: 24px bold;
+  color: white;
+  background: steelblue;
+  text-align: center;
+}*/
+
+input{
+  font: 30px bold;
+  width: 400px;
+  /*font-family: "楷体";*/
+}
+
+input[type=submit]{
+  /*font: 20px bold;*/
+  /*width: 1000px;*/
+  /*margin-left: 12px;*/
+  border-radius: 5px;
+  background-color: rgb(65,139,202);
+  /*font-family: "楷体";*/
+  color: white;
+}
+
+table{
+  border: 1px solid #9D9D9D;
+  border-spacing: 0px 30px;
+  border-radius: 5px;
+}
+
+input[type=text]{
+  border-radius:6px;
+  border:1px solid #909090;
+  color: #9D9D9D;
+  -webkit-transition: box-shadow 0.30s ease-in-out;   //只让box-shadow属性做过渡效果！
+  -moz-transition:  box-shadow 0.30s ease-in-out;      //firefox
+}
+
+input[type=password]{
+  border-radius:6px;
+  border:1px solid #909090;
+  color: #9D9D9D;
+  -webkit-transition: box-shadow 0.30s ease-in-out;   //只让box-shadow属性做过渡效果！
+  -moz-transition:  box-shadow 0.30s ease-in-out;      //firefox
+}
+
+input[type=text]:focus{
+  outline:none;
+  border:#87C6F9 1px solid;
+  /*box-shadow: 0 0 8px rgba(255,255,255,1);*/
+  box-shadow: 0 0 8px rgba(103, 166, 217, 1);
+  color: black;
+}
+
+input[type=password]:focus{
+  outline:none;
+  border:#87C6F9 1px solid;
+  /*box-shadow: 0 0 8px rgba(255,255,255,1);*/
+  box-shadow: 0 0 8px rgba(103, 166, 217, 1);
+  color: black;
+}
