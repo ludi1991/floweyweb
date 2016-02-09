@@ -7,7 +7,7 @@ var helper = require('../public/javascripts/helper');
 router.get('/', function(req, res, next) {
     if (req.session.allowed == 1 && (req.session.pri_5 == 1 ||req.session.pri_6 == 1)) {
         req.session.gameid = req.query.gameid;
-        res.render('daily_control', { title: 'daily_control' });
+        res.render('daily_control', { title: 'daily_control', session : req.session });
     }
     else{
         res.redirect('/login');
