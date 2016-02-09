@@ -6,11 +6,16 @@ var helper = require('../public/javascripts/helper');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    if (req.session.allowed == 1 ) {
-        res.render('user_control', { title: 'user_control' , session : req.session });
+    if (req.session.allowed == 1){
+        if (req.session.pri_1==1 || req.session.pri_2==1) {
+            res.render('user_control', { title: 'user_control' , session : req.session });
+        }
+        else{
+            res.redirect(helper.go_where_you_can(req));
+        }
     }
-    else {
-        res.redirect('/login');
+    else{
+        res.redirect("/login");
     }
 });
 
@@ -18,44 +23,38 @@ router.get('/', function(req, res, next) {
 router.post('/create',function(req,res,next){
     // console.log(req.body);
     if (req.session.allowed == 1 ) {
-        db.query("SELECT username from user where username = '" + req.body.username + "'",function(error,rows,fields){
-            if (error) throw error;
-            if (rows[0] != undefined ) {
-                var result = new Object();
-                result.Result = "ERROR";
-                result.Message = "用户名已存在！";
-                res.send(JSON.stringify(result));
-            }
-            else {
-                var sql = helper.get_sql_str_insert("user",req);
-                // db.query("insert into user (`username`,`password`,`pri_1`,`pri_2`,`pri_3`,`pri_4`,`pri_5`,`pri_6`,`pri_7`,`pri_8`,`pri_9`,`pri_10`,`pri_11`,`pri_12`) values ('"
-                //          +req.body.username+"','"
-                //          +req.body.password+"','"
-                //          +req.body.pri_1+"','"
-                //          +req.body.pri_2+"','"
-                //          +req.body.pri_3+"','"
-                //          +req.body.pri_4+"','"
-                //          +req.body.pri_5+"','"
-                //          +req.body.pri_6+"','"
-                //          +req.body.pri_7+"','"
-                //          +req.body.pri_8+"','"
-                //          +req.body.pri_9+"','"
-                //          +req.body.pri_10+"','"
-                //          +req.body.pri_11+"','"
-                //          +req.body.pri_12+"')",
-                db.query(sql,function(error,rows,fields){
-                    if (error) throw error;
-                    db.query("SELECT * from user where username = '" + req.body.username + "'",function (error,rows,fields){
+        if (req.session.pri_1==1 ) {
+            db.query("SELECT username from user where username = '" + req.body.username + "'",function(error,rows,fields){
+                if (error) throw error;
+                if (rows[0] != undefined ) {
+                    var result = new Object();
+                    result.Result = "ERROR";
+                    result.Message = "用户名已存在！";
+                    res.send(JSON.stringify(result));
+                }
+                else {
+                    var sql = helper.get_sql_str_insert("user",req);
+                    db.query(sql,function(error,rows,fields){
                         if (error) throw error;
-                        // console.log(row);
-                        var result = new Object();
-                        result.Result = "OK";
-                        result.Record = rows[0];
-                        res.send(JSON.stringify(result));
+                        db.query("SELECT * from user where username = '" + req.body.username + "'",function (error,rows,fields){
+                            if (error) throw error;
+                            // console.log(row);
+                            var result = new Object();
+                            result.Result = "OK";
+                            result.Record = rows[0];
+                            res.send(JSON.stringify(result));
+                        });
                     });
-                });
-            }
-        });
+                }
+            });
+        }
+        else
+        {
+            var result = new Object();
+            result.Result = "ERROR";
+            result.Message = "权限不足！";
+            res.send(JSON.stringify(result));
+        }
     }
     else
     {
@@ -68,39 +67,41 @@ router.post('/create',function(req,res,next){
 
 router.post("/update",function(req,res,next){
     if (req.session.allowed == 1 ) {
-        db.query("SELECT username from user where username = '" + req.body.username + "' and id != '" + req.body.id + "'",function(error,rows,fields){
-            if (error) throw error;
-            if (rows[0] != undefined ) {
-                var result = new Object();
-                result.Result = "ERROR";
-                result.Message = "用户名已存在！";
-                res.send(JSON.stringify(result));
-            }
-            else {
-                var sql = helper.get_sql_str_update("user",req,"id");
-                // var sql = "update user set username = '" + req.body.username
-                //          + "', password = '" + req.body.password
-                //          + "', pri_1 = '" + req.body.pri_1
-                //          + "', pri_2 = '" + req.body.pri_2
-                //          + "', pri_3 = '" + req.body.pri_3
-                //          + "', pri_4 = '" + req.body.pri_4
-                //          + "', pri_5 = '" + req.body.pri_5
-                //          + "', pri_6 = '" + req.body.pri_6
-                //          + "', pri_7 = '" + req.body.pri_7
-                //          + "', pri_8 = '" + req.body.pri_8
-                //          + "', pri_9 = '" + req.body.pri_9
-                //          + "', pri_10 = '" + req.body.pri_10
-                //          + "', pri_11 = '" + req.body.pri_11
-                //          + "', pri_12 = '" + req.body.pri_12+"' where id = '" + req.body.id + "'";
-                // console.log(sql)
-                db.query(sql,function(error,rows,fields){
-                    if (error) throw error;
+        if (req.session.pri_1==1 ) {
+            db.query("SELECT username from user where username = '" + req.body.username + "' and id != '" + req.body.id + "'",function(error,rows,fields){
+                if (error) throw error;
+                if (rows[0] != undefined ) {
                     var result = new Object();
-                    result.Result = "OK";
+                    result.Result = "ERROR";
+                    result.Message = "用户名已存在！";
                     res.send(JSON.stringify(result));
-                });
-            }
-        });
+                }
+                else {
+                    // console.log(req.body);
+                    for (var i = 1; i <=9 ; i++) {
+                        if (req.body["pri_"+i] == undefined)
+                        {
+                            req.body["pri_"+i] = '0';
+                        }
+                    };
+                    var sql = helper.get_sql_str_update("user",req,"id");
+                    // console.log(sql);
+                    db.query(sql,function(error,rows,fields){
+                        if (error) throw error;
+                        var result = new Object();
+                        result.Result = "OK";
+                        res.send(JSON.stringify(result));
+                    });
+                }
+            });
+        }
+        else
+        {
+            var result = new Object();
+            result.Result = "ERROR";
+            result.Message = "权限不足！";
+            res.send(JSON.stringify(result));
+        }
     }
     else
     {
@@ -114,12 +115,21 @@ router.post("/update",function(req,res,next){
 //delete user
 router.post('/delete',function(req,res,next){
     if (req.session.allowed == 1 ) {
-      db.query("DELETE from user where id = '" + req.body.id + "'",function (error,row,fields){
-        if (error) throw error;
-        var result = new Object();
-        result.Result = "OK";
-        res.send(JSON.stringify(result));
-      });
+        if (req.session.pri_1==1 ) {
+          db.query("DELETE from user where id = '" + req.body.id + "'",function (error,row,fields){
+            if (error) throw error;
+            var result = new Object();
+            result.Result = "OK";
+            res.send(JSON.stringify(result));
+          });
+        }
+        else
+        {
+            var result = new Object();
+            result.Result = "ERROR";
+            result.Message = "权限不足！";
+            res.send(JSON.stringify(result));
+        }
     }
     else {
         var result = new Object();

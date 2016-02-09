@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(charset='UTF-8')
-    title= '供应商管理'
+    title= '渠道统计'
     link(href="/stylesheets/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css")
     link(href="/javascripts/jtable/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css")
     link(href="/javascripts/validationEngine/css/validationEngine.jquery.css" rel="stylesheet" type="text/css")
@@ -14,57 +14,91 @@ html
     script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
   body(style='text-align:center;')
     div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
-      a(href='/users',style='text-decoration:none;color:rgb(75,133,191);')
-        用户管理
-      &nbsp;|&nbsp; 
-      a(href='/daily',style='text-decoration:none;color:rgb(75,133,191);')
-        统计管理
-      &nbsp;|&nbsp; 
-      a(href='/game',style='text-decoration:none;color:rgb(75,133,191);')
-        游戏管理
-      &nbsp;|&nbsp;
-      a(href='/project',style='text-decoration:none;color:rgb(75,133,191);')
-        项目管理
-      &nbsp;|&nbsp;
-      a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);')
-        供应商管理
+      -if(session.pri_9 == 1)
+        a(href='/basic_data',style='text-decoration:none;color:rgb(75,133,191);') 基本数据
+        &nbsp;|&nbsp;
+      -if(session.pri_1 == 1 || session.pri_2 == 1)
+        a(href='/users',style='text-decoration:none;color:rgb(75,133,191);') 用户管理
+        &nbsp;|&nbsp;
+      -if(session.pri_3 == 1 || session.pri_4 == 1)
+        a(href='/project',style='text-decoration:none;color:rgb(75,133,191);') 游戏管理
+        &nbsp;|&nbsp; 
+      -if(session.pri_5 == 1 || session.pri_6 == 1)
+        a(href='/game',style='text-decoration:none;color:rgb(75,133,191);') 公司统计
+        &nbsp;|&nbsp;
+      -if(session.pri_7 == 1)
+        a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);') 渠道统计
+        &nbsp;|&nbsp;
+      -if(session.pri_8 == 1)
+        a(href='/cp',style='text-decoration:none;color:rgb(75,133,191);') CP统计
+        &nbsp;|&nbsp;
+      a(href='/login/logout',style='text-decoration:none;color:rgb(75,133,191);') 登出
     div(id='myDiv' style="width: 1300px;margin:auto;")
     script(type="text/javascript").
       $(document).ready(function () {
         //Prepare jTable
         $('#myDiv').jtable({
-          title: '供应商',
+          title: '渠道统计',
           //- paging: true, //Enable paging
           //- pageSize: 5, //Set page size (default: 10)
           //- sorting: true, //Enable sorting
           //- defaultSorting: 'username ASC', //Set default sorting
           actions: {
-            listAction: 'vendor/list',
-            createAction: 'vendor/create',
-            updateAction: 'vendor/update',
-            deleteAction: 'vendor/delete'
+            listAction: 'vendor/list'
           },
           fields: {
-            id: {
-              key: true,
-              create: false,
-              edit: false,
-              list: false
-            },
-            name: {
-              //- key: true,
-              title: 'CP名称',
-              width: '50%'
+            vendor_name: {
+              title: '渠道名称',
+              width: '9%'
             },
             vendorid: {
-              title: 'CP编号',
-              width: '50%'
+              key: true,
+              title: '渠道编号',
+              width: '9%'
             },
+            game_name: {
+              title: '游戏名称',
+              width: '9%'
+            },
+            gameid: {
+              title: '游戏编号',
+              width: '9%'
+            },
+            date: {
+              title: '统计起始日期',
+              width: '9%',
+              type: 'date'
+            },
+            end_date: {
+              title: '统计结束日期',
+              width: '9%',
+              type: 'date'
+            },
+            n_newplayer: {
+              title: '新增用户数',
+              width: '9%'
+            },
+            n_income: {
+              title: '流水总收入',
+              width: '9%'
+            },
+            dp_vendor: {
+              title: '可分配收益',
+              width: '9%'
+            },
+            dp_vendor_vendor: {
+              title: '渠道分成比例',
+              width: '9%'
+            },
+            dp_vendor_vendor_value: {
+              title: '渠道分成收入',
+              width: '9%'
+            }
           },
           //Initialize validation logic when a form is created
           formCreated: function (event, data) {
-              data.form.find('input[name="name"]').addClass('validate[required]');
-              data.form.find('input[name="vendorid"]').addClass('validate[required,custom[number]]');
+              //- data.form.find('input[name="name"]').addClass('validate[required]');
+              //- data.form.find('input[name="vendorid"]').addClass('validate[required,custom[number]]');
               data.form.validationEngine();
           },
           //Validate form when it is being submitted

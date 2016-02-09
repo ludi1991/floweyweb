@@ -13,6 +13,8 @@ var project = require('./routes/project')
 var vendor = require('./routes/vendor')
 var game = require('./routes/game')
 var daily = require('./routes/daily')
+var basic_data = require('./routes/basic_data')
+var cp = require('./routes/cp')
 
 
 var app = express();
@@ -31,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
   secret: '12345',
-  cookie : { maxAge: 80000} ,
+  cookie : { maxAge: 1800000} ,
   resave : false,
   saveUninitialized: true,
 }))
@@ -43,6 +45,8 @@ app.use('/project',project);
 app.use('/vendor',vendor);
 app.use('/game',game);
 app.use('/daily',daily);
+app.use('/basic_data',basic_data);
+app.use('/cp',cp);
 
 
 

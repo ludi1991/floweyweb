@@ -5,7 +5,8 @@ var helper = require('../public/javascripts/helper');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    if (req.session.allowed == 1 ) {
+    if (req.session.allowed == 1 && (req.session.pri_5 == 1 ||req.session.pri_6 == 1)) {
+        req.session.gameid = req.query.gameid;
         res.render('daily_control', { title: 'daily_control' });
     }
     else{
@@ -13,53 +14,69 @@ router.get('/', function(req, res, next) {
     }
 });
 
-//create user
+//create
 router.post('/create',function(req,res,next){
     if (req.session.allowed == 1 ) {
-        db.query("SELECT projectid from project where projectid = '" + req.body.projectid + "'",function (error,rows,fields){
-            if (error) throw error;
-            if (rows[0] == undefined ) {
-                var result = new Object();
-                result.Result = "ERROR";
-                result.Message = "项目编号不存在！";
-                res.send(JSON.stringify(result));
-            }
-            else {
-                var sql = "SELECT id from statistics where projectid = '" + req.body.projectid + "' and date = '" + req.body.date + "'";
-                db.query(sql,function (error,rows,fields){
-                    if (error) throw error;
-                    if(rows[0] == undefined ){
-                        // var sql = "insert into statistics (`projectid`,`date`,`income`,`activate`,`newplayer`) values ('"+
-                        //         req.body.projectid+"','"+
-                        //         req.body.date+"','"+
-                        //         req.body.income+"','"+
-                        //         req.body.activate+"','"+
-                        //         req.body.newplayer+"')";
-                        var sql = helper.get_sql_str_insert("statistics",req);
-                        // console.log(sql);
-                        db.query(sql,function (error,rows,fields){
-                            if (error) throw error;
-                            var sql = "SELECT id,projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(date)*1000,')\/') date,income,activate,newplayer from statistics where projectid = '" 
-                                        + req.body.projectid + "' and date = '" + req.body.date + "'";
+        if (req.session.pri_5 == 1 ) {
+            db.query("SELECT projectid from project where projectid = '" + req.body.projectid + "'",function (error,rows,fields){
+                if (error) throw error;
+                if (rows[0] == undefined ) {
+                    var result = new Object();
+                    result.Result = "ERROR";
+                    result.Message = "项目编号不存在！";
+                    res.send(JSON.stringify(result));
+                }
+                else {
+                    var sql = "SELECT id from statistics where projectid = '" + req.body.projectid + "' and date = '" + req.body.date + "'";
+                    db.query(sql,function (error,rows,fields){
+                        if (error) throw error;
+                        if(rows[0] == undefined ){
+                            // var sql = "insert into statistics (`projectid`,`date`,`income`,`activate`,`newplayer`) values ('"+
+                            //         req.body.projectid+"','"+
+                            //         req.body.date+"','"+
+                            //         req.body.income+"','"+
+                            //         req.body.activate+"','"+
+                            //         req.body.newplayer+"')";
+                            var sql = helper.get_sql_str_insert("statistics",req);
+                            console.log(sql);
                             db.query(sql,function (error,rows,fields){
                                 if (error) throw error;
-                                var result = new Object();
-                                result.Result = "OK";
-                                result.Record = rows[0];
-                                console.log(rows);
-                                res.send(JSON.stringify(result));
+                                var sql = "SELECT s.id,s.projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date,s.income,s.download_cnt,s.newplayer,\
+                                             s.arpu,s.stay_1,s.stay_7,s.stay_15,s.stay_30,g.gameid,g.name game_name,v.vendorid,v.name vendor_name,p.dp_main,p.dp_main_main,\
+                                             p.dp_vendor,p.dp_vendor_vendor\
+                                             from statistics as s, project as p, game as g, vendor as v\
+                                             where p.projectid=s.projectid and p.gameid=g.gameid and p.vendorid=v.vendorid and s.projectid='"+req.body.projectid+
+                                             "' and s.date='" + req.body.date + "'";
+                                db.query(sql,function (error,rows,fields){
+                                    if (error) throw error;
+                                    rows[0].dp_main_value = Math.floor(rows[0].income * rows[0].dp_main);
+                                    rows[0].dp_main_main_value = Math.floor(rows[0].dp_main_value * rows[0].dp_main_main);
+                                    rows[0].dp_vendor_value = Math.floor(rows[0].income * rows[0].dp_vendor);
+                                    rows[0].dp_vendor_vendor_value = Math.floor(rows[0].dp_vendor_value * rows[0].dp_vendor_vendor);
+                                    var result = new Object();
+                                    result.Result = "OK";
+                                    result.Record = rows[0];
+                                    // console.log(rows);
+                                    res.send(JSON.stringify(result));
+                                });
                             });
-                        });
-                    }
-                    else{
-                        var result = new Object();
-                        result.Result = "ERROR";
-                        result.Message = "重复的条目！";
-                        res.send(JSON.stringify(result));
-                    }
-                });
-            }
-        });
+                        }
+                        else{
+                            var result = new Object();
+                            result.Result = "ERROR";
+                            result.Message = "重复的条目！";
+                            res.send(JSON.stringify(result));
+                        }
+                    });
+                }
+            });
+        }
+        else{
+            var result = new Object();
+            result.Result = "ERROR";
+            result.Message = "权限不足！";
+            res.send(JSON.stringify(result));
+        }
     }
     else{
         var result = new Object();
@@ -71,46 +88,58 @@ router.post('/create',function(req,res,next){
 
 router.post('/update',function(req,res,next){
     if (req.session.allowed == 1 ) {
-        db.query("SELECT projectid from project where projectid = '" + req.body.projectid + "'",function (error,rows,fields){
-            if (error) throw error;
-            if (rows[0] == undefined ) {
-                var result = new Object();
-                result.Result = "ERROR";
-                result.Message = "项目编号不存在！";
-                res.send(JSON.stringify(result));
-            }
-            else {
-                var sql = "SELECT id from statistics where projectid = '" + req.body.projectid + "' and date = '" + req.body.date + "' and id != '" +req.body.id+"'";
-                db.query(sql,function (error,rows,fields){
-                    if (error) throw error;
-                    if(rows[0] == undefined ){
-                        // var sql = "update statistics set";
-                        // for(var key in req.body)
-                        // {
-                        //     if(req.body[key]!=""){
-                        //         sql = sql + " " + key + " = '" + req.body[key] + "',";
-                        //     }
-                        // }
-                        // sql = sql.substring(0,sql.length-1); //去除最后一个','
-                        // sql = sql + " where id = '" + req.body.id + "'";
-                        var sql = helper.get_sql_str_update("statistics",req,"id");
-                        // console.log(sql);
-                        db.query(sql,function (error,rows,fields){
-                            if (error) throw error;
+        if (req.session.pri_5 == 1 ) {
+            db.query("SELECT projectid from project where projectid = '" + req.body.projectid + "'",function (error,rows,fields){
+                if (error) throw error;
+                if (rows[0] == undefined ) {
+                    var result = new Object();
+                    result.Result = "ERROR";
+                    result.Message = "项目编号不存在！";
+                    res.send(JSON.stringify(result));
+                }
+                else {
+                    var sql = "SELECT id from statistics where projectid = '" + req.body.projectid + "' and date = '" + req.body.date + "' and id != '" +req.body.id+"'";
+                    db.query(sql,function (error,rows,fields){
+                        if (error) throw error;
+                        if(rows[0] == undefined ){
+                            var sql = helper.get_sql_str_update("statistics",req,"id");
+                            // console.log(sql);
+                            db.query(sql,function (error,rows,fields){
+                                if (error) throw error;
+                                var sql = "SELECT s.id,s.projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date,s.income,s.download_cnt,s.newplayer,\
+                                             s.arpu,s.stay_1,s.stay_7,s.stay_15,s.stay_30,g.gameid,g.name game_name,v.vendorid,v.name vendor_name,p.dp_main,p.dp_main_main,\
+                                             p.dp_vendor,p.dp_vendor_vendor\
+                                             from statistics as s, project as p, game as g, vendor as v\
+                                             where p.projectid=s.projectid and p.gameid=g.gameid and p.vendorid=v.vendorid and s.id='"+req.body.id+"'";
+                                db.query(sql,function (error,rows,fields){
+                                    if (error) throw error;
+                                    rows[0].dp_main_value = Math.floor(rows[0].income * rows[0].dp_main);
+                                    rows[0].dp_main_main_value = Math.floor(rows[0].dp_main_value * rows[0].dp_main_main);
+                                    rows[0].dp_vendor_value = Math.floor(rows[0].income * rows[0].dp_vendor);
+                                    rows[0].dp_vendor_vendor_value = Math.floor(rows[0].dp_vendor_value * rows[0].dp_vendor_vendor);
+                                    var result = new Object();
+                                    result.Result = "OK";   
+                                    result.Record = rows[0];
+                                    res.send(JSON.stringify(result));
+                                });
+                            });
+                        }
+                        else{
                             var result = new Object();
-                            result.Result = "OK";                         
+                            result.Result = "ERROR";
+                            result.Message = "重复的条目！";
                             res.send(JSON.stringify(result));
-                        });
-                    }
-                    else{
-                        var result = new Object();
-                        result.Result = "ERROR";
-                        result.Message = "重复的条目！";
-                        res.send(JSON.stringify(result));
-                    }
-                });
-            }
-        });
+                        }
+                    });
+                }
+            });
+        }
+        else{
+            var result = new Object();
+            result.Result = "ERROR";
+            result.Message = "权限不足！";
+            res.send(JSON.stringify(result));
+        }
     }
     else{
         var result = new Object();
@@ -123,12 +152,20 @@ router.post('/update',function(req,res,next){
 //delete statistics
 router.post('/delete',function(req,res,next){
     if (req.session.allowed == 1 ) {
-      db.query("DELETE from statistics where id = '" + req.body.id + "'",function (error,row,fields){
-        if (error) throw error;
+      if (req.session.pri_5 == 1 ) {
+          db.query("DELETE from statistics where id = '" + req.body.id + "'",function (error,row,fields){
+            if (error) throw error;
+            var result = new Object();
+            result.Result = "OK";
+            res.send(JSON.stringify(result));
+          });
+      }
+      else{
         var result = new Object();
-        result.Result = "OK";
+        result.Result = "ERROR";
+        result.Message = "权限不足！";
         res.send(JSON.stringify(result));
-      });
+      }
     }
     else {
         var result = new Object();
@@ -139,16 +176,31 @@ router.post('/delete',function(req,res,next){
 });
 
 
-//alter statistics
-router.post('/alter',function(req,res,next){
-
-});
-
-
 router.post('/list',function(req,res,next){
-    db.query("SELECT id,projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(date)*1000,')\/') date,income,activate,newplayer from statistics\
-             ORDER BY projectid,date",function (error,rows,fields){
+    console.log("gameid...."+req.session.gameid)
+    var sql = "SELECT s.id,s.projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date,s.income,s.download_cnt,s.newplayer,\
+             s.arpu,s.stay_1,s.stay_7,s.stay_15,s.stay_30,g.gameid,g.name game_name,v.vendorid,v.name vendor_name,p.dp_main,p.dp_main_main,\
+             p.dp_vendor,p.dp_vendor_vendor\
+             from statistics as s, project as p, game as g, vendor as v\
+             where p.projectid=s.projectid and p.gameid=g.gameid and p.vendorid=v.vendorid and p.gameid='"+req.session.gameid+
+             "' ORDER BY g.gameid,s.date";
+    if(req.session.gameid == "all")
+    {
+        sql = "SELECT s.id,s.projectid, CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date,s.income,s.download_cnt,s.newplayer,\
+             s.arpu,s.stay_1,s.stay_7,s.stay_15,s.stay_30,g.gameid,g.name game_name,v.vendorid,v.name vendor_name,p.dp_main,p.dp_main_main,\
+             p.dp_vendor,p.dp_vendor_vendor\
+             from statistics as s, project as p, game as g, vendor as v\
+             where p.projectid=s.projectid and p.gameid=g.gameid and p.vendorid=v.vendorid\
+             ORDER BY g.gameid,s.date";
+    }
+    db.query(sql,function (error,rows,fields){
         if (error) throw error;
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].dp_main_value = Math.floor(rows[i].income * rows[i].dp_main);
+            rows[i].dp_main_main_value = Math.floor(rows[i].dp_main_value * rows[i].dp_main_main);
+            rows[i].dp_vendor_value = Math.floor(rows[i].income * rows[i].dp_vendor);
+            rows[i].dp_vendor_vendor_value = Math.floor(rows[i].dp_vendor_value * rows[i].dp_vendor_vendor);
+        }
         var result = new Object();
         result.Result = "OK";
         result.Records = rows;
@@ -157,14 +209,19 @@ router.post('/list',function(req,res,next){
 });
 
 router.post('/get_project_options',function(req,res,next){
-    var sql = "select p.projectid, v.name vendor_name, g.name game_name, p.dp_father, p.dp_child\
+    var sql = "select p.projectid, v.name vendor_name, g.name game_name\
+              from project as p, game as g, vendor as v where p.gameid=g.gameid and p.vendorid=v.vendorid and g.gameid='"+req.session.gameid+"'";
+    if(req.session.gameid == "all")
+    {
+        sql = "select p.projectid, v.name vendor_name, g.name game_name\
               from project as p, game as g, vendor as v where p.gameid=g.gameid and p.vendorid=v.vendorid";
+    }
     db.query(sql,function (error,rows,fields){
         if (error) throw error;
         var options = new Array();
         for(i=0;i<rows.length;i++)
         {
-            options[i] = {"DisplayText":rows[i].vendor_name+"-"+rows[i].game_name, "Value":rows[i].projectid};
+            options[i] = {"DisplayText":rows[i].game_name+"-"+rows[i].vendor_name, "Value":rows[i].projectid};
         }
         var result = new Object();
         result.Result = "OK";
@@ -238,38 +295,7 @@ router.post('/get_charts_option',function(req,res,next){
                     type : 'value'
                 }
             ],
-            series : [
-                // {
-                //     name:'邮件营销',
-                //     type:'line',
-                //     stack: '总量',
-                //     data:[120, 132, 101, 134, 90, 230, 210]
-                // },
-                // {
-                //     name:'联盟广告',
-                //     type:'line',
-                //     stack: '总量',
-                //     data:[220, 182, 191, 234, 290, 330, 310]
-                // },
-                // {
-                //     name:'视频广告',
-                //     type:'line',
-                //     stack: '总量',
-                //     data:[150, 232, 201, 154, 190, 330, 410]
-                // },
-                // {
-                //     name:'直接访问',
-                //     type:'line',
-                //     stack: '总量',
-                //     data:[320, 332, '-', 334, 390, 330, 320]
-                // },
-                // {
-                //     name:'搜索引擎',
-                //     type:'line',
-                //     stack: '总量',
-                //     data:[820, 932, 901, 934, 1290, 1330, 1320]
-                // }
-            ]
+            series : []
         };
         if(req.body.chartType == "income"){
             option.title.text = '收入';

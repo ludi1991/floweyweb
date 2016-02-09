@@ -49,7 +49,7 @@ router.post('/',function(req,res,next){
 });
 
 
-router.post('/logout',function(req,res,next){
+router.get('/logout',function(req,res,next){
     if (req.session.allowed = 1) {
         req.session.allowed = undefined;
         req.session.privilege = undefined;
@@ -68,7 +68,7 @@ router.post('/logout',function(req,res,next){
         req.session.pri_11 = undefined;
         req.session.pri_12 = undefined;
     }
-    res.send("ok");
+    res.redirect("/login");
 })
 
 

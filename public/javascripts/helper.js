@@ -32,5 +32,29 @@ function get_sql_str_update(tablename, req, keyname){
     return sql;
 }
 
+function go_where_you_can(req){
+    var ans = "";
+    if(req.session.pri_1 == 1 || req.session.pri_2 == 1){
+        ans = "/users";
+    }
+    else if(req.session.pri_3 == 1 || req.session.pri_4 == 1){
+        ans = "/project";
+    }
+    else if(req.session.pri_5 == 1 || req.session.pri_6 == 1){
+        ans = "/game";
+    }
+    else if(req.session.pri_7 == 1){
+        ans = "/vendor";
+    }
+    else if(req.session.pri_8 == 1){
+        ans = "/cp";
+    }
+    else if(req.session.pri_9 == 1){
+        ans = "/basic_data";
+    }
+    return ans;
+}
+
 module.exports.get_sql_str_insert = get_sql_str_insert;
 module.exports.get_sql_str_update = get_sql_str_update;
+module.exports.go_where_you_can = go_where_you_can;

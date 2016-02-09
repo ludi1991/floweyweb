@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(charset='UTF-8')
-    title= '统计管理'
+    title= '公司统计'
     link(href="/stylesheets/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css")
     link(href="/javascripts/jtable/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css")
     link(href="/javascripts/validationEngine/css/validationEngine.jquery.css" rel="stylesheet" type="text/css")
@@ -13,27 +13,32 @@ html
     script(src="/javascripts/validationEngine/js/jquery.validationEngine.js" type="text/javascript")
     script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
   body(style='text-align:center;')
-    div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
-      a(href='/users',style='text-decoration:none;color:rgb(75,133,191);')
-        用户管理
-      &nbsp;|&nbsp; 
-      a(href='/daily',style='text-decoration:none;color:rgb(75,133,191);')
-        统计管理
-      &nbsp;|&nbsp; 
-      a(href='/game',style='text-decoration:none;color:rgb(75,133,191);')
-        游戏管理
-      &nbsp;|&nbsp;
-      a(href='/project',style='text-decoration:none;color:rgb(75,133,191);')
-        项目管理
-      &nbsp;|&nbsp;
-      a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);')
-        供应商管理
-    div(id='myDiv' style="width: 1300px;margin:auto;")
+    div(style='background-color:#EAEAEA;width:1900px;color:#858585;height:22px;margin:auto;')
+      -if(session.pri_9 == 1)
+        a(href='/basic_data',style='text-decoration:none;color:rgb(75,133,191);') 基本数据
+        &nbsp;|&nbsp;
+      -if(session.pri_1 == 1 || session.pri_2 == 1)
+        a(href='/users',style='text-decoration:none;color:rgb(75,133,191);') 用户管理
+        &nbsp;|&nbsp;
+      -if(session.pri_3 == 1 || session.pri_4 == 1)
+        a(href='/project',style='text-decoration:none;color:rgb(75,133,191);') 游戏管理
+        &nbsp;|&nbsp; 
+      -if(session.pri_5 == 1 || session.pri_6 == 1)
+        a(href='/game',style='text-decoration:none;color:rgb(75,133,191);') 公司统计
+        &nbsp;|&nbsp;
+      -if(session.pri_7 == 1)
+        a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);') 渠道统计
+        &nbsp;|&nbsp;
+      -if(session.pri_8 == 1)
+        a(href='/cp',style='text-decoration:none;color:rgb(75,133,191);') CP统计
+        &nbsp;|&nbsp;
+      a(href='/login/logout',style='text-decoration:none;color:rgb(75,133,191);') 登出
+    div(id='myDiv' style="width: 1900px;margin:auto;")
     script(type="text/javascript").
       $(document).ready(function () {
         //Prepare jTable
         $('#myDiv').jtable({
-          title: '统计',
+          title: '公司统计',
           //- paging: true, //Enable paging
           //- pageSize: 5, //Set page size (default: 10)
           //- sorting: true, //Enable sorting
@@ -52,37 +57,133 @@ html
               list: false
             },
             projectid: {
-              //- key: true,
-              title: '项目编号',
-              width: '20%',
-              options: 'daily/get_project_options'
+              options: 'daily/get_project_options',
+              create: true,
+              edit: true,
+              list: false
+            },
+            game_name: {
+              title: '游戏名称',
+              width: '4.5%',
+              create: false,
+              edit: false
+            },
+            gameid: {
+              title: '游戏编号',
+              width: '4.5%',
+              create: false,
+              edit: false
             },
             date: {
-              title: '日期',
-              width: '20%',
+              title: '统计日期',
+              width: '4.5%',
               type: 'date',
               displayFormat: 'yy-mm-dd'
             },
-            income: {
-              title: '收入',
-              width: '20%'
+            vendor_name: {
+              title: '渠道名称',
+              width: '4%',
+              create: false,
+              edit: false
             },
-            activate: {
-              title: '激活用户',
-              width: '20%'
+            vendorid: {
+              title: '渠道编号',
+              width: '4%',
+              create: false,
+              edit: false
+            },
+            income: {
+              title: '流水总收入',
+              width: '4%'
+            },
+            dp_main: {
+              title: '公司流水结算率',
+              width: '5%',
+              create: false,
+              edit: false
+            },
+            dp_main_value: {
+              title: '公司可分配收益',
+              width: '5%',
+              create: false,
+              edit: false
+            },
+            dp_main_main: {
+              title: '公司分成比例',
+              width: '4.5%',
+              create: false,
+              edit: false
+            },
+            dp_main_main_value: {
+              title: '公司分成收入',
+              width: '4.5%',
+              create: false,
+              edit: false
+            },
+            dp_vendor: {
+              title: '渠道流水结算率',
+              width: '5%',
+              create: false,
+              edit: false
+            },
+            dp_vendor_value: {
+              title: '渠道可分配收益',
+              width: '5%',
+              create: false,
+              edit: false
+            },
+            dp_vendor_vendor: {
+              title: '渠道分成比例',
+              width: '4.5%',
+              create: false,
+              edit: false
+            },
+            dp_vendor_vendor_value: {
+              title: '渠道分成收入',
+              width: '4.5%',
+              create: false,
+              edit: false
+            },
+            download_cnt: {
+              title: '下载用户数',
+              width: '4%'
             },
             newplayer: {
-              title: '新用户',
-              width: '20%'
+              title: '新增用户数',
+              width: '4%'
+            },
+            arpu: {
+              title: '新增用户ARPU',
+              width: '5%'
+            },
+            stay_1: {
+              title: '次日留存率',
+              width: '4.5%'
+            },
+            stay_7: {
+              title: '7日留存率',
+              width: '4.5%'
+            },
+            stay_15: {
+              title: '15日留存率',
+              width: '4.5%'
+            },
+            stay_30: {
+              title: '30日留存率',
+              width: '4.5%'
             }
           },
           //Initialize validation logic when a form is created
           formCreated: function (event, data) {
-              data.form.find('input[name="projectid"]').addClass('validate[required]');
               data.form.find('input[name="date"]').addClass('validate[required]');
               data.form.find('input[name="income"]').addClass('validate[custom[number]]');
-              data.form.find('input[name="activate"]').addClass('validate[custom[integer]]');
+              data.form.find('input[name="download_cnt"]').addClass('validate[custom[integer]]');
               data.form.find('input[name="newplayer"]').addClass('validate[custom[integer]]');
+              data.form.find('input[name="arpu"]').addClass('validate[custom[number]]');
+              data.form.find('input[name="stay_1"]').addClass('validate[custom[number]]');
+              data.form.find('input[name="stay_7"]').addClass('validate[custom[number]]');
+              data.form.find('input[name="stay_15"]').addClass('validate[custom[number]]');
+              data.form.find('input[name="stay_30"]').addClass('validate[custom[number]]');
               data.form.validationEngine();
           },
           //Validate form when it is being submitted
@@ -101,72 +202,72 @@ html
 
       });
 
-    table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
-      tr
-        td
-          div(id='mychart_income' style='height: 400px;')
-    table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
-      tr
-        td
-          div(id='mychart_activate' style='height: 400px;')
-    table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
-      tr
-        td
-          div(id='mychart_newplayer' style='height: 400px;')
-    script(src="http://echarts.baidu.com/build/dist/echarts.js")
-    script(type="text/javascript").
-      function ajaxRequest(url, chartType, func){
-        var xmlhttp;
-        if (window.XMLHttpRequest)
-        {// code for IE7+, Firefox, Chrome, Opera, Safari
-          xmlhttp=new XMLHttpRequest();
-        }
-        else
-        {// code for IE6, IE5
-          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        xmlhttp.onreadystatechange=function()
-        {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-          {
-            func(eval ("(" + xmlhttp.responseText + ")"));
-          }
-        }
-        xmlhttp.open("POST",url,true);
-        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        xmlhttp.send("chartType="+chartType);
-      }
-      // 路径配置
-      require.config({
-          paths: {
-              echarts: 'http://echarts.baidu.com/build/dist'
-          }
-      });
-      // 使用
-      require(
-          [
-              'echarts',
-              'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
-              'echarts/chart/line'
-          ],
-          function (ec) {
+    //- table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
+    //-   tr
+    //-     td
+    //-       div(id='mychart_income' style='height: 400px;')
+    //- table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
+    //-   tr
+    //-     td
+    //-       div(id='mychart_activate' style='height: 400px;')
+    //- table(style='border: 1px solid #9D9D9D;border-spacing: 0px 30px;border-radius: 5px;width:1300px;position:relative;top:10px;margin:auto;')
+    //-   tr
+    //-     td
+    //-       div(id='mychart_newplayer' style='height: 400px;')
+    //- script(src="http://echarts.baidu.com/build/dist/echarts.js")
+    //- script(type="text/javascript").
+    //-   function ajaxRequest(url, chartType, func){
+    //-     var xmlhttp;
+    //-     if (window.XMLHttpRequest)
+    //-     {// code for IE7+, Firefox, Chrome, Opera, Safari
+    //-       xmlhttp=new XMLHttpRequest();
+    //-     }
+    //-     else
+    //-     {// code for IE6, IE5
+    //-       xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    //-     }
+    //-     xmlhttp.onreadystatechange=function()
+    //-     {
+    //-     if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    //-       {
+    //-         func(eval ("(" + xmlhttp.responseText + ")"));
+    //-       }
+    //-     }
+    //-     xmlhttp.open("POST",url,true);
+    //-     xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    //-     xmlhttp.send("chartType="+chartType);
+    //-   }
+    //-   // 路径配置
+    //-   require.config({
+    //-       paths: {
+    //-           echarts: 'http://echarts.baidu.com/build/dist'
+    //-       }
+    //-   });
+    //-   // 使用
+    //-   require(
+    //-       [
+    //-           'echarts',
+    //-           'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+    //-           'echarts/chart/line'
+    //-       ],
+    //-       function (ec) {
 
-              ajaxRequest('daily/get_charts_option',"income",function(option){
-                var myChart = ec.init(document.getElementById('mychart_income')); 
-                myChart.setOption(option); 
-              });
+    //-           ajaxRequest('daily/get_charts_option',"income",function(option){
+    //-             var myChart = ec.init(document.getElementById('mychart_income')); 
+    //-             myChart.setOption(option); 
+    //-           });
 
-              ajaxRequest('daily/get_charts_option',"activate",function(option){
-                var myChart = ec.init(document.getElementById('mychart_activate')); 
-                myChart.setOption(option); 
-              });
+    //-           ajaxRequest('daily/get_charts_option',"activate",function(option){
+    //-             var myChart = ec.init(document.getElementById('mychart_activate')); 
+    //-             myChart.setOption(option); 
+    //-           });
 
-              ajaxRequest('daily/get_charts_option',"newplayer",function(option){
-                var myChart = ec.init(document.getElementById('mychart_newplayer')); 
-                myChart.setOption(option); 
-              });
+    //-           ajaxRequest('daily/get_charts_option',"newplayer",function(option){
+    //-             var myChart = ec.init(document.getElementById('mychart_newplayer')); 
+    //-             myChart.setOption(option); 
+    //-           });
               
-              // 为echarts对象加载数据 
-              //- myChart.setOption(option); 
-          }
-      );
+    //-           // 为echarts对象加载数据 
+    //-           //- myChart.setOption(option); 
+    //-       }
+    //-   );

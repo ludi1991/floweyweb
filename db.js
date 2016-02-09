@@ -19,8 +19,8 @@ function createConnection() {
     return mysql.createConnection({
         host     : '121.40.241.223',
         user     : 'ludi',
-        password : '67108864ld',
         database : 'stat',
+        password : '67108864ld'
     });
 }
 

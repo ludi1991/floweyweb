@@ -14,27 +14,33 @@ html
     script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
   body(style='text-align:center;')
     div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
-      a(href='/users',style='text-decoration:none;color:rgb(75,133,191);')
-        用户管理
-      &nbsp;|&nbsp; 
-      a(href='/daily',style='text-decoration:none;color:rgb(75,133,191);')
-        统计管理
-      &nbsp;|&nbsp; 
-      a(href='/game',style='text-decoration:none;color:rgb(75,133,191);')
-        游戏管理
-      &nbsp;|&nbsp;
-      a(href='/project',style='text-decoration:none;color:rgb(75,133,191);')
-        项目管理
-      &nbsp;|&nbsp;
-      a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);')
-        供应商管理
+      -if(session.pri_9 == 1)
+        a(href='/basic_data',style='text-decoration:none;color:rgb(75,133,191);') 基本数据
+        &nbsp;|&nbsp;
+      -if(session.pri_1 == 1 || session.pri_2 == 1)
+        a(href='/users',style='text-decoration:none;color:rgb(75,133,191);') 用户管理
+        &nbsp;|&nbsp;
+      -if(session.pri_3 == 1 || session.pri_4 == 1)
+        a(href='/project',style='text-decoration:none;color:rgb(75,133,191);') 游戏管理
+        &nbsp;|&nbsp; 
+      -if(session.pri_5 == 1 || session.pri_6 == 1)
+        a(href='/game',style='text-decoration:none;color:rgb(75,133,191);') 公司统计
+        &nbsp;|&nbsp;
+      -if(session.pri_7 == 1)
+        a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);') 渠道统计
+        &nbsp;|&nbsp;
+      -if(session.pri_8 == 1)
+        a(href='/cp',style='text-decoration:none;color:rgb(75,133,191);') CP统计
+        &nbsp;|&nbsp;
+      a(href='/login/logout',style='text-decoration:none;color:rgb(75,133,191);') 登出
     div(id='myDiv' style="width: 1300px;margin:auto;")
+    div(id='myDiv2' style="width: 1300px;margin:auto;")
     script(type="text/javascript").
       $(document).ready(function () {
         //- alert("test");
         //Prepare jTable
         $('#myDiv').jtable({
-          title: '用户',
+          title: '用户管理',
           //- paging: true, //Enable paging
           //- pageSize: 5, //Set page size (default: 10)
           //- sorting: true, //Enable sorting
@@ -55,85 +61,85 @@ html
             username: {
               //- key: true,
               title: '用户名',
-              width: '20%'
+              width: '16%'
             },
             password: {
               title: '密码',
-              width: '20%',
+              width: '12%',
               type: 'password'
             },
             pri_1: {
-              title: 'pri_1',
-              width: '5%',
+              title: '用户管理设定',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_2: {
-              title: 'pri_2',
-              width: '5%',
+              title: '用户管理查看',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_3: {
-              title: 'pri_3',
-              width: '5%',
+              title: '游戏管理设定',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_4: {
-              title: 'pri_4',
-              width: '5%',
+              title: '游戏管理查看',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_5: {
-              title: 'pri_5',
-              width: '5%',
+              title: '公司统计填报',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_6: {
-              title: 'pri_6',
-              width: '5%',
+              title: '公司统计查看',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_7: {
-              title: 'pri_7',
-              width: '5%',
+              title: '渠道统计查看',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_8: {
-              title: 'pri_8',
-              width: '5%',
+              title: 'CP统计查看',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
             },
             pri_9: {
-              title: 'pri_9',
-              width: '5%',
+              title: '基本数据管理',
+              width: '8%',
               type: 'checkbox',
               values: { '0': '', '1': '√' }
-            },
-            pri_10: {
-              title: 'pri_10',
-              width: '5%',
-              type: 'checkbox',
-              values: { '0': '', '1': '√' }
-            },
-            pri_11: {
-              title: 'pri_11',
-              width: '5%',
-              type: 'checkbox',
-              values: { '0': '', '1': '√' }
-            },
-            pri_12: {
-              title: 'pri_12',
-              width: '5%',
-              type: 'checkbox',
-              values: { '0': '', '1': '√' }
-            },
+            }
+            //- pri_10: {
+            //-   title: 'pri_10',
+            //-   width: '5%',
+            //-   type: 'checkbox',
+            //-   values: { '2': '', '1': '√' }
+            //- },
+            //- pri_11: {
+            //-   title: 'pri_11',
+            //-   width: '5%',
+            //-   type: 'checkbox',
+            //-   values: { '2': '', '1': '√' }
+            //- },
+            //- pri_12: {
+            //-   title: 'pri_12',
+            //-   width: '5%',
+            //-   type: 'checkbox',
+            //-   values: { '2': '', '1': '√' }
+            //- },
           },
           //Initialize validation logic when a form is created
           formCreated: function (event, data) {
@@ -168,34 +174,5 @@ html
 
         //Load person list from server
         $('#myDiv').jtable('load');
-
       });
-      //- function loadXMLDoc()
-      //- {
-      //-   alert("test")
-      //-   var xmlhttp;
-      //-   if(window.XMLHttpRequest)
-      //-   {
-      //-     xmlhttp= new XMLHttpRequest();
-      //-   }  
-      //-   else
-      //-   {
-      //-     xmlhttp= new ActiveXObject("Microsoft.XMLHTTP");
-      //-   }
-      //-   xmlhttp.onreadystatechange=function()
-      //-   {
-      //-     if (xmlhttp.readyState==4 && xmlhttp.status==200)
-      //-     {
-      //-       var users = eval("(" + xmlhttp.responseText + ")");
-      //-       for(var i=0;i<users.length;i++)
-      //-           document.write(users[i].username+":"+users[i].password);
-      //-       //- var test = [{"username":"admin","password":"123"},{"username":"admin1","password":"333"}]
-      //-       //- for(var i=0;i<test.length;i++)
-      //-       //-     document.write(test[i].username+":"+test[i].password+" ")
-      //-       //- document.write(xmlhttp.responseText)
-      //-     }
-      //-   }
-      //-   xmlhttp.open("GET","users/list",true);
-      //-   xmlhttp.send();
-      //- }
     

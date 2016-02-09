@@ -6,7 +6,7 @@ var helper = require('../public/javascripts/helper');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    if (req.session.allowed == 1 ) {
+    if (req.session.allowed == 1 && (req.session.pri_5 == 1 ||req.session.pri_6 == 1)) {
         res.render('game_control', { title: 'game_control' , session : req.session });
     }
     else {
@@ -14,146 +14,30 @@ router.get('/', function(req, res, next) {
     }
 });
 
-//create project
-router.post('/create',function(req,res,next){
-  // console.log(req.body);
-  if (req.session.allowed == 1 ) {
-    db.query("SELECT name from game where name = '" + req.body.name + "'",function(error,rows,fields){
-        if (error) throw error;
-        if (rows[0] == undefined){
-          db.query("SELECT id from game where gameid = '" + req.body.gameid + "'",function(error,rows,fields){
-            if (error) throw error;
-            if (rows[0] == undefined) {
-              var sql = helper.get_sql_str_insert("game",req);            
-              // db.query("insert into game (`name`,`gameid`) values ('"+req.body.name+"','"+req.body.gameid+"')",function(error,rows,fields){
-              db.query(sql,function(error,rows,fields){
-                if (error) throw error;
-                db.query("SELECT * from game where gameid = '" + req.body.gameid + "'",function(error,rows,fields){
-                  if(error) throw error;
-                  var result = new Object();
-                  result.Result = "OK";
-                  result.Record = rows[0];
-                  res.send(JSON.stringify(result));
-                });
-              });
-            }
-            else {
-              var result = new Object();
-              result.Result = "ERROR";
-              result.Message = "游戏编号已存在";
-              res.send(JSON.stringify(result));
-            }
-          });
-        }
-        else {
-          var result = new Object();
-          result.Result = "ERROR";
-          result.Message = "游戏名称已存在";
-          res.send(JSON.stringify(result));
-        }
-    });
-  }
-  else
-  {
-    var result = new Object();
-    result.Result = "ERROR";
-    result.Message = "登陆超时，请重新登陆！";
-    res.send(JSON.stringify(result));
-  }
-  
-});
-
-router.post('/update',function(req,res,next){
-  if (req.session.allowed == 1 ) {
-    db.query("SELECT name from game where name = '" + req.body.name + "' and id != '" + req.body.id + "'",function(error,rows,fields){
-      if (error) throw error;
-      if (rows[0] == undefined){
-        db.query("SELECT name from game where gameid = '" + req.body.gameid + "' and id != '" + req.body.id + "'",function(error,rows,fields){
-          if (error) throw error;
-          if (rows[0] == undefined){
-            var sql = helper.get_sql_str_update("game",req,"id");
-            // db.query("update game set name = '" + req.body.name + "', gameid = '" + req.body.gameid + "' where id = '" + req.body.id + "'",function (error,row,fields){
-            db.query(sql,function (error,row,fields){
-              if (error) throw error;
-              var result = new Object();
-              result.Result = "OK";
-              res.send(JSON.stringify(result));
-            });
-          }
-          else{
-            var result = new Object();
-            result.Result = "ERROR";
-            result.Message = "游戏编号已存在";
-            res.send(JSON.stringify(result));
-          }
-        });
-      }
-      else{
-        var result = new Object();
-        result.Result = "ERROR";
-        result.Message = "游戏名称已存在";
-        res.send(JSON.stringify(result));
-      }
-    });
-  }
-  else {
-    var result = new Object();
-    result.Result = "ERROR";
-    result.Message = "登陆超时，请重新登陆！";
-    res.send(JSON.stringify(result));
-  }
-});
-
-//delete game
-router.post('/delete',function(req,res,next){
-    if (req.session.allowed == 1 ) {
-      db.query("DELETE from game where id = '" + req.body.id + "'",function (error,row,fields){
-        if (error) throw error;
-        var result = new Object();
-        result.Result = "OK";
-        res.send(JSON.stringify(result));
-      });
-    }
-    else {
-      var result = new Object();
-      result.Result = "ERROR";
-      result.Message = "登陆超时，请重新登陆！";
-      res.send(JSON.stringify(result));
-    }
-});
-
-//alter gamename
-router.post('/alter',function(req,res,next){
-  console.log(req.body)
-  db.query("SELECT gameid from game where gameid = '" + req.body.gameid + "'",function(error,rows,fields){
-    if (error) throw error;
-    if (rows[0] == undefined ) {
-        res.send("gameid not exist");
-    }
-    else {
-        db.query("SELECT name from game where name = '" + req.body.name + "'",function(error,rows,fields){
-           if(error) throw error;
-           if (rows[0] == undefined) {
-              db.query("UPDATE game set name = '"+req.body.name+"' where gameid = '"+req.body.gameid+"'",function(error,rows,fields){
-                  if(error) throw error;
-                  res.send("change ok");
-              });
-           } 
-           else {
-               res.send("gamename exist");
-           }
-        });
-    }
-  });
-})
-
 router.post('/list',function(req,res,next){
-    db.query("SELECT * from game",function (error,rows,fields){
+    var sql = "SELECT g.id,g.gameid,g.name game_name,CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date from game as g, project as p, statistics as s\
+               where s.projectid=p.projectid and p.gameid=g.gameid ORDER BY g.gameid,s.date";
+    db.query(sql,function (error,rows,fields){
         if (error) throw error;
-        console.log(rows);
+        // console.log(rows);
+        var newrows = new Array();
+        newrows[0] = rows[0];
+        for (var i = 0, j = 0; i < rows.length; i++) {
+          if(newrows[j].gameid != rows[i].gameid)
+          {
+            newrows[++j] = rows[i];
+          }
+          newrows[j].end_date = rows[i].date;
+        };
+        var allgame = new Object();
+        allgame.gameid = 'all';
+        allgame.id = newrows[newrows.length-1].id + 1;
+        newrows.push(allgame);
+        // console.log("newrows----------------");
+        // console.log(newrows);
         var result = new Object();
         result.Result = "OK";
-        result.Records = rows;
+        result.Records = newrows;
         res.send(JSON.stringify(result));
     }) 
 })

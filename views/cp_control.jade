@@ -1,0 +1,128 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title= 'CP统计'
+    link(href="/stylesheets/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/jtable/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css")
+    link(href="/javascripts/validationEngine/css/validationEngine.jquery.css" rel="stylesheet" type="text/css")
+
+    script(src="/javascripts/jquery-1.6.4.min.js" type="text/javascript")
+    script(src="/javascripts/jquery-ui-1.8.16.custom.min.js" type="text/javascript")
+    script(src="/javascripts/jtable/jquery.jtable.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/jquery.validationEngine.js" type="text/javascript")
+    script(src="/javascripts/validationEngine/js/languages/jquery.validationEngine-zh_CN.js" type="text/javascript")
+  body(style='text-align:center;')
+    div(style='background-color:#EAEAEA;width:1300px;color:#858585;height:22px;margin:auto;')
+      -if(session.pri_9 == 1)
+        a(href='/basic_data',style='text-decoration:none;color:rgb(75,133,191);') 基本数据
+        &nbsp;|&nbsp;
+      -if(session.pri_1 == 1 || session.pri_2 == 1)
+        a(href='/users',style='text-decoration:none;color:rgb(75,133,191);') 用户管理
+        &nbsp;|&nbsp;
+      -if(session.pri_3 == 1 || session.pri_4 == 1)
+        a(href='/project',style='text-decoration:none;color:rgb(75,133,191);') 游戏管理
+        &nbsp;|&nbsp; 
+      -if(session.pri_5 == 1 || session.pri_6 == 1)
+        a(href='/game',style='text-decoration:none;color:rgb(75,133,191);') 公司统计
+        &nbsp;|&nbsp;
+      -if(session.pri_7 == 1)
+        a(href='/vendor',style='text-decoration:none;color:rgb(75,133,191);') 渠道统计
+        &nbsp;|&nbsp;
+      -if(session.pri_8 == 1)
+        a(href='/cp',style='text-decoration:none;color:rgb(75,133,191);') CP统计
+        &nbsp;|&nbsp;
+      a(href='/login/logout',style='text-decoration:none;color:rgb(75,133,191);') 登出
+    div(id='myDiv' style="width: 1300px;margin:auto;")
+    script(type="text/javascript").
+      $(document).ready(function () {
+        //Prepare jTable
+        $('#myDiv').jtable({
+          title: 'CP统计',
+          //- paging: true, //Enable paging
+          //- pageSize: 5, //Set page size (default: 10)
+          //- sorting: true, //Enable sorting
+          //- defaultSorting: 'username ASC', //Set default sorting
+          actions: {
+            listAction: 'cp/list'
+          },
+          fields: {
+            cp_name: {
+              title: 'CP名称',
+              width: '7.7%'
+            },
+            cpid: {
+              key: true,
+              title: 'CP编号',
+              width: '7.7%'
+            },
+            game_name: {
+              title: '游戏名称',
+              width: '7.7%'
+            },
+            gameid: {
+              title: '游戏编号',
+              width: '7.7%'
+            },
+            vendor_name: {
+              title: '渠道名称',
+              width: '7.7%'
+            },
+            vendorid: {
+              title: '渠道编号',
+              width: '7.7%'
+            },
+            date: {
+              title: '统计起始日期',
+              width: '7.7%',
+              type: 'date'
+            },
+            end_date: {
+              title: '统计结束日期',
+              width: '7.7%',
+              type: 'date'
+            },
+            n_newplayer: {
+              title: '新增用户数',
+              width: '7.7%'
+            },
+            n_income: {
+              title: '流水总收入',
+              width: '7.7%'
+            },
+            dp_main: {
+              title: '公司可分配收益',
+              width: '7.7%'
+            },
+            dp_main_cp: {
+              title: 'CP分成比例',
+              width: '7.7%'
+            },
+            dp_main_cp_value: {
+              title: 'CP分成收入',
+              width: '7.7%'
+            }
+          },
+          //Initialize validation logic when a form is created
+          formCreated: function (event, data) {
+              //- data.form.find('input[name="name"]').addClass('validate[required]');
+              //- data.form.find('input[name="vendorid"]').addClass('validate[required,custom[number]]');
+              data.form.validationEngine();
+          },
+          //Validate form when it is being submitted
+          formSubmitting: function (event, data) {
+              return data.form.validationEngine('validate');
+          },
+          //Dispose validation logic when form is closed
+          formClosed: function (event, data) {
+              //- data.form.validationEngine('hide');
+              //- data.form.validationEngine('detach');
+          }
+        });
+
+        //Load person list from server
+        $('#myDiv').jtable('load');
+
+      });
+    
+    

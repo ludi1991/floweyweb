@@ -5,7 +5,7 @@ var helper = require('../public/javascripts/helper');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    if (req.session.allowed == 1 ) {
+    if (req.session.allowed == 1 && req.session.pri_7 == 1) {
         res.render('vendor_control', { title: 'vendor_control' , session : req.session });
     }
     else {
@@ -13,152 +13,43 @@ router.get('/', function(req, res, next) {
     }
 });
 
-//create project
-router.post('/create',function(req,res,next){
-  // console.log(req.body);
-  if (req.session.allowed == 1 ) {
-    db.query("SELECT name from vendor where name = '" + req.body.name + "'",function(error,rows,fields){
-        if (error) throw error;
-        if (rows[0] == undefined){
-          db.query("SELECT id from vendor where vendorid = '" + req.body.vendorid + "'",function(error,rows,fields){
-            if (error) throw error;
-            if (rows[0] == undefined) {
-              var sql = helper.get_sql_str_insert("vendor",req);
-              // db.query("insert into vendor (`name`,`vendorid`) values ('"+req.body.name+"','"+req.body.vendorid+"')",function(error,rows,fields){
-              db.query(sql,function(error,rows,fields){
-                if (error) throw error;
-                db.query("SELECT * from vendor where vendorid = '" + req.body.vendorid + "'",function(error,rows,fields){
-                  if (error) throw error;
-                  var result = new Object();
-                  result.Result = "OK";
-                  result.Record = rows[0];
-                  res.send(JSON.stringify(result));
-                });
-              });
-            }
-            else {
-              var result = new Object();
-              result.Result = "ERROR";
-              result.Message = "供应商编号已存在！";
-              res.send(JSON.stringify(result));
-            }
-          });
-        }
-        else {
-          var result = new Object();
-          result.Result = "ERROR";
-          result.Message = "供应商名称已存在！";
-          res.send(JSON.stringify(result));
-        }
-
-    });
-  }
-  else
-  {
-    var result = new Object();
-    result.Result = "ERROR";
-    result.Message = "登陆超时，请重新登陆！";
-    res.send(JSON.stringify(result));
-  }
-  
-});
-
-router.post('/update',function(req,res,next){
-  if (req.session.allowed == 1 ) {
-    db.query("SELECT name from vendor where name = '" + req.body.name + "' and id != '" + req.body.id + "'",function(error,rows,fields){
-        if (error) throw error;
-        if (rows[0] == undefined){
-          db.query("SELECT id from vendor where vendorid = '" + req.body.vendorid + "' and id != '" + req.body.id + "'",function(error,rows,fields){
-            if (error) throw error;
-            if (rows[0] == undefined) {
-              var sql = helper.get_sql_str_update("vendor",req,"id");
-              // db.query("update vendor set name = '"+req.body.name+"', vendorid = '"+req.body.vendorid+"' where id = '"+req.body.id+"'",function(error,rows,fields){
-              db.query(sql,function(error,rows,fields){
-                if (error) throw error;
-                var result = new Object();
-                result.Result = "OK";
-                res.send(JSON.stringify(result));
-              });
-            }
-            else {
-              var result = new Object();
-              result.Result = "ERROR";
-              result.Message = "供应商编号已存在！";
-              res.send(JSON.stringify(result));
-            }
-          });
-        }
-        else {
-          var result = new Object();
-          result.Result = "ERROR";
-          result.Message = "供应商名称已存在！";
-          res.send(JSON.stringify(result));
-        }
-    });
-  }
-  else
-  {
-    var result = new Object();
-    result.Result = "ERROR";
-    result.Message = "登陆超时，请重新登陆！";
-    res.send(JSON.stringify(result));
-  }
-});
-
-//delete vendor
-router.post('/delete',function(req,res,next){
-    if (req.session.allowed == 1 ) {
-      db.query("DELETE from vendor where id = '" + req.body.id + "'",function (error,row,fields){
-        if (error) throw error;
-        var result = new Object();
-        result.Result = "OK";
-        res.send(JSON.stringify(result));
-      });
-    }
-    else {
-      var result = new Object();
-      result.Result = "ERROR";
-      result.Message = "登陆超时，请重新登陆！";
-      res.send(JSON.stringify(result));
-    }
-});
-
-//alter vendorname
-router.post('/alter',function(req,res,next){
-  console.log(req.body)
-  db.query("SELECT vendorid from vendor where vendorid = '" + req.body.vendorid + "'",function(error,rows,fields){
-    if (error) throw error;
-    if (rows[0] == undefined ) {
-        res.send("vendorid not exist");
-    }
-    else {
-        db.query("SELECT name from vendor where name = '" + req.body.name + "'",function(error,rows,fields){
-           if(error) throw error;
-           if (rows[0] == undefined) {
-              db.query("UPDATE vendor set name = '"+req.body.name+"' where vendorid = '"+req.body.vendorid+"'",function(error,rows,fields){
-                  if(error) throw error;
-                  res.send("change ok");
-              });
-           } 
-           else {
-               res.send("vendorname exist");
-           }
-        });
-    }
-  });
-})
-
 //get vendor list
 router.post('/list',function(req,res,next){
-    db.query("SELECT * from vendor",function (error,rows,fields){
+    var sql = "SELECT g.gameid,g.name game_name,v.vendorid,v.name vendor_name,CONCAT('\/Date(',UNIX_TIMESTAMP(s.date)*1000,')\/') date,\
+               s.income,s.newplayer,p.dp_vendor,p.dp_vendor_vendor\
+               from game as g, project as p, statistics as s, vendor as v\
+               where s.projectid=p.projectid and p.gameid=g.gameid and p.vendorid=v.vendorid ORDER BY v.vendorid,g.gameid,s.date";
+    db.query(sql,function (error,rows,fields){
         if (error) throw error;
-        console.log(rows);
+        var newrows = new Array();
+        newrows[0] = rows[0];
+        newrows[0].n_income = 0;
+        newrows[0].n_newplayer = 0;
+        for (var i = 0, j = 0; i < rows.length; i++) {
+          if(rows[i].vendorid != newrows[j].vendorid || rows[i].gameid != newrows[j].gameid)
+          {
+            newrows[j].dp_vendor_vendor_value = Math.floor(newrows[j].n_income * newrows[j].dp_vendor * newrows[j].dp_vendor_vendor);
+            newrows[++j] = rows[i];
+            newrows[j].n_income = 0;
+            newrows[j].n_newplayer = 0;
+          }
+          newrows[j].end_date = rows[i].date;
+          newrows[j].n_income = newrows[j].n_income + rows[i].income;
+          newrows[j].n_newplayer = newrows[j].n_newplayer + rows[i].newplayer;
+          // console.log("rows[i]------------");
+          // console.log(rows[i]);
+          // console.log("newrows[j]------------");
+          // console.log(newrows[j]);
+        };
+        //the last record do not have "dp_vendor_vendor_value"
+        newrows[newrows.length-1].dp_vendor_vendor_value = Math.floor(newrows[newrows.length-1].n_income * newrows[newrows.length-1].dp_vendor * newrows[newrows.length-1].dp_vendor_vendor);
+        console.log(newrows);
         var result = new Object();
         result.Result = "OK";
-        result.Records = rows;
+        result.Records = newrows;
         res.send(JSON.stringify(result))
     }) 
-})
+});
 
 
 module.exports = router;
